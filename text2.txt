@@ -1,0 +1,166 @@
+// Connection String
+Scaffold-DbContext "Server=localhost;Database=BookStore;uid=sa;pwd=123465;MultipleActiveResultSets=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+Scaffold-DbContext "Server=localhost;Database=BlogDB;uid=sa;pwd=1;MultipleActiveResultSets=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+// Kết nối với SQL Server bằng Windows Authentication
+
+Scaffold-DbContext "Server=localhost;Database=BlogDB;Trusted_Connection=True;MultipleActiveResultSets=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+// Migration
+
+Add-Migration InitialCreate
+
+Update-Database
+
+
+// Add SQL Server BDKSo3Context
+builder.Services.AddDbContext<BDKSo3Context>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BDKSo3Context")));
+
+You need to add the Match table in your DynamicBettingUserContext class like below. Then You need to add migration using Add-Migration <YourMigrationName> in Package Manager Console and finally, You have to run Update-Database command in PMC.
+
+public virtual DbSet<Match> Match { get; set; }
+
+// Entity Package
+EntityFrameworkCore
+EntityFrameworkCore.Design
+EntityFrameworkCore.SqlServer
+EntityFrameworkCore.Tools
+
+
+// Các bước làm bài kiểm tra .net core CRUD
+
+1. Tạo project .net core
+- ASP.NET Core Web Application (MVC)
+2. Cài đặt Entity Package
+- EntityFrameworkCore
+- EntityFrameworkCore.Design
+- EntityFrameworkCore.SqlServer
+- EntityFrameworkCore.Tools
+
+3. Sử dụng Scaffold-DbContext để tạo model từ database
+- Scaffold-DbContext "Server=localhost;Database=BookStore;uid=sa;pwd=123465;MultipleActiveResultSets=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+- Scaffold-DbContext "Server=localhost;Database=BlogDB;Trusted_Connection=True;MultipleActiveResultSets=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+
+4. Thêm ConnectionString vào appsettings.json
+- "ConnectionStrings": {
+	"BookStoreConnection": "Server=localhost;Database=BookStore;uid=sa;pwd=123465;MultipleActiveResultSets=True;"
+  }
+
+5. Thêm DbContext vào Startup.cs
+- services.AddDbContext<BookStoreContext>(options => options.UseSqlServer(Configuration.GetConnectionString("BookStoreConnection")));
+
+* Program.cs
+- builder.Services.AddDbContext<BlogDBContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+6. Tạo CRUD tự động
+
+6.1 Add datatable js
+
+
+7. Tạo tìm kiếm
+- Tạo form tìm kiếm
+- Tạo hàm tìm kiếm trong controller
+- Tạo hàm tìm kiếm trong repository
+
+8. Tạo phân trang
+- Tạo hàm phân trang trong repository
+- Tạo hàm phân trang trong controller
+- Tạo view phân trang
+
+9. Tạo lọc thông minh
+- Tạo form lọc thông minh
+- Tạo hàm lọc thông minh trong controller
+- Tạo hàm lọc thông minh trong repository
+
+
+File layouts
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - webapp_mvc</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/webapp_mvc.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">webapp_mvc</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - webapp_mvc - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Custom filter function for price range
+            $.fn.dataTable.ext.search.push(
+                function (settings, data, dataIndex) {
+                    var min = parseFloat($('#minPrice').val(), 10);
+                    var max = parseFloat($('#maxPrice').val(), 10);
+                    var price = parseFloat(data[1]); // Use data for the price column index = 1
+
+                    if ((isNaN(min) && isNaN(max)) ||
+                        (isNaN(min) && price <= max) ||
+                        (min <= price && isNaN(max)) ||
+                        (min <= price && price <= max)) {
+                        return true;
+                    }
+                    return false;
+                }
+            );
+
+            // Initialize the DataTable
+            var table = $('#myTable').DataTable();
+
+            // Event listener to the two range filtering inputs to redraw on input
+            $('#minPrice, #maxPrice').keyup(function () {
+                table.draw();
+            });
+        });
+    </script>
+}
